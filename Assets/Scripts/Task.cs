@@ -26,8 +26,6 @@ public class Sequence : Task
 
     public override bool Run()
     {
-        Debug.Log("Running Sequence: " + name + ", current child index: " + currentChildIndex);
-
         // If we have no children, we're done
         if (children.Count == 0)
             return true;
@@ -36,24 +34,17 @@ public class Sequence : Task
         while (currentChildIndex < children.Count)
         {
             Task currentChild = children[currentChildIndex];
-            Debug.Log("  Running child task: " + currentChild.name);
 
             bool childResult = currentChild.Run();
 
             if (!childResult)
             {
-                Debug.Log("  Sequence: " + name + " - Child task: " + currentChild.name +
-                          " is in progress/failed. Sequence pauses.");
                 return false; // Child is in progress or failed, so sequence is not done
             }
-
-            Debug.Log("  Sequence: " + name + " - Child task: " + currentChild.name +
-                      " succeeded. Moving to next child.");
             currentChildIndex++; // Move to the next child
         }
 
         // Reset for future runs
-        Debug.Log("Sequence: " + name + " - All child tasks succeeded. Sequence succeeds.");
         currentChildIndex = 0;
         return true; // All children succeeded, so sequence succeeded
     }
@@ -83,8 +74,6 @@ public class Selector : Task
 
     public override bool Run()
     {
-        Debug.Log("Running Selector: " + name + ", current child index: " + currentChildIndex);
-
         // If we have no children, we fail
         if (children.Count == 0)
             return false;
@@ -93,14 +82,11 @@ public class Selector : Task
         while (currentChildIndex < children.Count)
         {
             Task currentChild = children[currentChildIndex];
-            Debug.Log("  Trying child task: " + currentChild.name);
 
             bool childResult = currentChild.Run();
 
             if (childResult)
             {
-                Debug.Log("  Selector: " + name + " - Child task: " + currentChild.name +
-                          " succeeded. Selector succeeds.");
                 currentChildIndex = 0; // Reset for future runs
                 return true; // Child succeeded, so selector succeeded
             }
@@ -117,19 +103,13 @@ public class Selector : Task
                 // and we should wait before trying the next one
                 if (currentChild is MoveTo)
                 {
-                    Debug.Log("  Selector: " + name + " - Child task: " + currentChild.name +
-                              " is in progress. Selector pauses.");
                     return false;
                 }
             }
-
-            Debug.Log("  Selector: " + name + " - Child task: " + currentChild.name +
-                      " failed. Trying next child.");
             currentChildIndex++; // Try the next child
         }
 
         // Reset for future runs
-        Debug.Log("Selector: " + name + " - All child tasks failed. Selector fails.");
         currentChildIndex = 0;
         return false; // All children failed, so selector failed
     }
@@ -160,9 +140,7 @@ public class Inverter : Task
 
     public override bool Run()
     {
-        Debug.Log("Running Inverter: " + name + " - Inverting child task: " + child.name); // Debug log
         bool result = child.Run();
-        Debug.Log("  Inverter: " + name + " - Child task: " + child.name + " result: " + result + ". Inverter returns: " + !result); // Debug log
         return !result; // Inverts the result of the child task
     }
 }
@@ -262,7 +240,6 @@ public class MoveTo : Task
 {
     private NavMeshAgent agent;
     private Transform targetPosition;
-    public float stoppingDistance = 1.5f;
     private bool hasStartedMoving = false;
     private bool isWaitingForDestination = false;
 
@@ -279,7 +256,6 @@ public class MoveTo : Task
         // First time this task is run - start the movement
         if (!hasStartedMoving)
         {
-            agent.stoppingDistance = stoppingDistance;
             agent.SetDestination(targetPosition.position);
             Debug.Log("MoveTo: " + name + " - Setting destination to: " + targetPosition.position);
             hasStartedMoving = true;
@@ -301,8 +277,6 @@ public class MoveTo : Task
             else
             {
                 // Still moving
-                Debug.Log("MoveTo: " + name + " - Still moving. Remaining distance: " +
-                    (agent.pathPending ? "path pending" : agent.remainingDistance.ToString()));
                 return false; // Not done yet
             }
         }

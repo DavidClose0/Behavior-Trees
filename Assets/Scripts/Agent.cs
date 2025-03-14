@@ -38,7 +38,7 @@ public class Agent : MonoBehaviour
 
         Sequence lockedDoorActions = new Sequence("Locked Door Actions");
         lockedDoorActions.children.Add(new MoveTo(navMeshAgent, doorPosition));
-        lockedDoorActions.children.Add(new OpenDoorTask(doorScript));
+        lockedDoorActions.children.Add(new BargeDoorTask(doorScript, transform));
         lockedDoorActions.children.Add(new MoveIntoRoom(navMeshAgent, roomPosition));
 
         lockedDoorSequence.children.Add(lockedDoorActions);
@@ -51,7 +51,7 @@ public class Agent : MonoBehaviour
 
         Sequence closedDoorActions = new Sequence("Closed Door Actions");
         closedDoorActions.children.Add(new MoveTo(navMeshAgent, doorPosition));
-        closedDoorActions.children.Add(new BargeDoorTask(doorScript, transform)); // Pass agent's transform
+        closedDoorActions.children.Add(new OpenDoorTask(doorScript)); // Pass agent's transform
         closedDoorActions.children.Add(new MoveIntoRoom(navMeshAgent, roomPosition));
 
         closedDoorSequence.children.Add(closedDoorActions);
